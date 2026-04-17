@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ASCIIcam — Live ASCII Camera</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -28,7 +28,7 @@
     <!-- ── Main Layout ── -->
     <main class="main">
 
-      <!-- Left: ASCII output -->
+      <!-- Left: ASCII output + bottom toolbar -->
       <section class="output-panel">
         <div class="screen-bezel">
           <div class="screen-inner">
@@ -37,16 +37,28 @@
               <div class="start-icon">&#9654;</div>
               <p>Click to start camera</p>
             </div>
-            <!-- Fullscreen HUD -->
-            <div id="fs-hud" class="fs-hud hidden">
-              <button class="fs-hud-btn" id="fs-btn-record">&#9679; Record</button>
-              <button class="fs-hud-btn" id="fs-btn-png">&#8681; Photo</button>
-              <button class="fs-hud-btn" id="fs-btn-txt">&#8681; Text</button>
-              <button class="fs-hud-btn fs-hud-exit" id="fs-btn-exit">&#x2715; Exit</button>
-            </div>
+            <button class="screen-fullscreen-btn" id="btn-fullscreen" title="Fullscreen (F)">&#x26F6;</button>
           </div>
         </div>
-        <div class="screen-label">LIVE OUTPUT // <span id="fps-counter">0</span> FPS</div>
+        <div class="screen-footer-bar">
+          <div class="screen-label">LIVE OUTPUT // <span id="fps-counter">0</span> FPS</div>
+          <div class="bottom-toolbar">
+            <button class="start-btn" id="btn-start">&#9654; Start</button>
+            <button class="stop-btn hidden" id="btn-stop">&#9632; Stop</button>
+            <button class="action-btn" id="btn-snap-txt">&#8681; .txt</button>
+            <button class="action-btn" id="btn-snap-png">&#8681; .png</button>
+            <label class="check-row compact">
+              <input type="checkbox" id="chk-invert" checked />
+              <span class="check-box"></span>
+              <span>Invert</span>
+            </label>
+            <label class="check-row compact">
+              <input type="checkbox" id="chk-mirror" checked />
+              <span class="check-box"></span>
+              <span>Mirror</span>
+            </label>
+          </div>
+        </div>
       </section>
 
       <!-- Right: Controls -->
@@ -70,22 +82,22 @@
 
         <div class="ctrl-section">
           <label class="ctrl-label" for="slider-detail">DETAIL <span id="detail-val" class="ctrl-val">80</span></label>
-          <input type="range" id="slider-detail" class="slider" min="20" max="160" value="160" step="5" />
+          <input type="range" id="slider-detail" class="slider" min="20" max="160" value="80" step="5" />
         </div>
 
         <div class="ctrl-section">
           <label class="ctrl-label" for="slider-contrast">CONTRAST <span id="contrast-val" class="ctrl-val">100</span>%</label>
-          <input type="range" id="slider-contrast" class="slider" min="50" max="200" value="200" step="5" />
+          <input type="range" id="slider-contrast" class="slider" min="50" max="200" value="100" step="5" />
         </div>
 
         <div class="ctrl-section">
           <label class="ctrl-label" for="slider-sharpen">SHARPEN <span id="sharpen-val" class="ctrl-val">1</span></label>
-          <input type="range" id="slider-sharpen" class="slider" min="0" max="5" value="5" step="1" />
+          <input type="range" id="slider-sharpen" class="slider" min="0" max="5" value="1" step="1" />
         </div>
 
         <div class="ctrl-section">
           <label class="ctrl-label" for="slider-gamma">GAMMA <span id="gamma-val" class="ctrl-val">1.0</span></label>
-          <input type="range" id="slider-gamma" class="slider" min="5" max="25" value="25" step="1" />
+          <input type="range" id="slider-gamma" class="slider" min="5" max="25" value="10" step="1" />
         </div>
 
         <div class="ctrl-section">
@@ -98,33 +110,6 @@
               <button class="color-reset-btn" id="btn-color-reset" title="Reset to phosphor green">↺</button>
             </div>
           </div>
-        </div>
-
-        <div class="ctrl-section">
-          <div class="ctrl-label">OPTIONS</div>
-          <label class="check-row">
-            <input type="checkbox" id="chk-invert" checked />
-            <span class="check-box"></span>
-            <span>Invert colors</span>
-          </label>
-          <label class="check-row">
-            <input type="checkbox" id="chk-mirror" checked />
-            <span class="check-box"></span>
-            <span>Mirror (selfie mode)</span>
-          </label>
-        </div>
-
-        <div class="ctrl-section">
-          <div class="ctrl-label">EXPORT</div>
-          <button class="action-btn" id="btn-record">&#9679; Record Video</button>
-          <button class="action-btn" id="btn-snap-txt">&#8681; Save .txt</button>
-          <button class="action-btn" id="btn-snap-png">&#8681; Save .png</button>
-        </div>
-
-        <div class="ctrl-section">
-          <button class="start-btn" id="btn-start">&#9654; Start Camera</button>
-          <button class="stop-btn hidden" id="btn-stop">&#9632; Stop</button>
-          <button class="action-btn fullscreen-btn" id="btn-fullscreen">&#x26F6; Fullscreen</button>
         </div>
 
       </aside>
