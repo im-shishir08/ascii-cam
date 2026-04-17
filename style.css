@@ -196,6 +196,18 @@ video, #capture-canvas { display: none; }
   padding-left: 4px;
 }
 
+.below-screen-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.below-screen-btns .action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 7px 6px;
+}
+
 /* ── Controls panel ── */
 .controls-panel {
   background: var(--surface);

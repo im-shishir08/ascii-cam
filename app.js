@@ -23,7 +23,7 @@ const screenInner    = document.querySelector('.screen-inner');
 
 const btnStart       = document.getElementById('btn-start');
 const btnStop        = document.getElementById('btn-stop');
-const btnRecord      = document.getElementById('btn-record');
+const btnRecord      = document.getElementById('btn-record2');
 const btnClassic     = document.getElementById('btn-classic');
 const btnColor       = document.getElementById('btn-color');
 const btnAscii       = document.getElementById('btn-ascii');
@@ -38,13 +38,13 @@ const sharpenVal     = document.getElementById('sharpen-val');
 const gammaVal       = document.getElementById('gamma-val');
 const chkInvert      = document.getElementById('chk-invert');
 const chkMirror      = document.getElementById('chk-mirror');
-const btnSnapTxt     = document.getElementById('btn-snap-txt');
-const btnSnapPng     = document.getElementById('btn-snap-png');
+const btnSnapTxt     = document.getElementById('btn-snap-txt2');
+const btnSnapPng     = document.getElementById('btn-snap-png2');
 const colorWheel     = document.getElementById('color-wheel');
 const colorSwatch    = document.getElementById('color-swatch');
 const colorHex       = document.getElementById('color-hex');
 const btnColorReset  = document.getElementById('btn-color-reset');
-const btnFullscreen  = document.getElementById('btn-fullscreen');
+const btnFullscreen  = document.getElementById('btn-fullscreen2');
 const screenBezel    = document.querySelector('.screen-bezel');
 // Fullscreen HUD
 const fsHud          = document.getElementById('fs-hud');
@@ -387,7 +387,7 @@ function exportPng() {
 
   ec.fillStyle = '#000'; ec.fillRect(0, 0, ec.canvas.width, ec.canvas.height);
   ec.font = `${fs}px 'Share Tech Mono', monospace`;
-  ec.fillStyle = '#39ff14'; ec.textBaseline = 'top';
+  ec.fillStyle = state.asciiColor; ec.textBaseline = 'top';
   lines.forEach((line, i) => ec.fillText(line, px, py + i * lh));
 
   ec.canvas.toBlob(blob => {
@@ -481,7 +481,7 @@ function paintRecordFrame() {
 
 function updateRecordBtns() {
   const isRec = state.recording;
-  btnRecord.textContent    = isRec ? '⏹ Stop Rec' : '⏺ Record Video';
+  btnRecord.textContent    = isRec ? '⏹ Stop Rec' : '⏺ Record';
   fsBtnRecord.textContent  = isRec ? '⏹ Stop'     : '⏺ Record';
   btnRecord.classList.toggle('recording', isRec);
   fsBtnRecord.classList.toggle('recording', isRec);
