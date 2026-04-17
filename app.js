@@ -23,7 +23,6 @@ const screenInner    = document.querySelector('.screen-inner');
 
 const btnStart       = document.getElementById('btn-start');
 const btnStop        = document.getElementById('btn-stop');
-const btnRecord      = document.getElementById('btn-record');
 const btnClassic     = document.getElementById('btn-classic');
 const btnColor       = document.getElementById('btn-color');
 const btnAscii       = document.getElementById('btn-ascii');
@@ -45,13 +44,6 @@ const colorSwatch    = document.getElementById('color-swatch');
 const colorHex       = document.getElementById('color-hex');
 const btnColorReset  = document.getElementById('btn-color-reset');
 const btnFullscreen  = document.getElementById('btn-fullscreen');
-const screenBezel    = document.querySelector('.screen-bezel');
-// Fullscreen HUD
-const fsHud          = document.getElementById('fs-hud');
-const fsBtnRecord    = document.getElementById('fs-btn-record');
-const fsBtnPng       = document.getElementById('fs-btn-png');
-const fsBtnTxt       = document.getElementById('fs-btn-txt');
-const fsBtnExit      = document.getElementById('fs-btn-exit');
 
 // ─────────────────────────────────────────
 // 2. State
@@ -60,10 +52,10 @@ const state = {
   running:    false,
   mode:       'classic',
   render:     'ascii',
-  cols:       160,
-  contrast:   200,
-  sharpen:    5,
-  gamma:      2.5,
+  cols:       100,
+  contrast:   100,
+  sharpen:    1,
+  gamma:      1.0,
   invert:     true,
   mirror:     true,
   animId:     null,
@@ -71,10 +63,6 @@ const state = {
   frameCount: 0,
   gammaLUT:   null,
   asciiColor: '#39ff14',
-  // Recording
-  mediaRecorder: null,
-  recordChunks:  [],
-  recording:     false,
 };
 
 // ASCII ramp — darkest to lightest, tuned for face detail
@@ -93,7 +81,7 @@ function buildGammaLUT(gamma) {
   }
   state.gammaLUT = lut;
 }
-buildGammaLUT(2.5);
+buildGammaLUT(1.0);
 
 // ─────────────────────────────────────────
 // 4. Camera
@@ -186,7 +174,6 @@ function renderFrame(timestamp) {
     renderEdge(sharp, cols, rows);
   }
 
-  paintRecordFrame();
   scheduleFrame();
 }
 
@@ -403,102 +390,11 @@ function ts() {
 }
 
 // ─────────────────────────────────────────
-// 11. Video Recording (ASCII rendered to canvas → WebM)
-// ─────────────────────────────────────────
-
-// Off-screen canvas we'll stream from
-const recCanvas = document.createElement('canvas');
-const recCtx    = recCanvas.getContext('2d');
-
-function startRecording() {
-  if (!state.running) { alert('Start the camera first!'); return; }
-  if (state.recording) { stopRecording(); return; }
-
-  // Size the recording canvas to match current ASCII output dimensions
-  const fs   = 7.5, lh = fs * 1.15, cw = fs * 0.601;
-  const lines = asciiOutput.textContent.split('\n');
-  const cols  = lines[0]?.length || state.cols;
-  const rows  = lines.length;
-  recCanvas.width  = Math.round(cols * cw);
-  recCanvas.height = Math.round(rows * lh);
-
-  // Check MediaRecorder support
-  const mimeType = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
-    .find(m => MediaRecorder.isTypeSupported(m)) || '';
-
-  const stream = recCanvas.captureStream(30);
-  state.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-  state.recordChunks  = [];
-
-  state.mediaRecorder.ondataavailable = e => {
-    if (e.data.size > 0) state.recordChunks.push(e.data);
-  };
-
-  state.mediaRecorder.onstop = () => {
-    const blob = new Blob(state.recordChunks, { type: 'video/webm' });
-    Object.assign(document.createElement('a'), {
-      href: URL.createObjectURL(blob),
-      download: `asciicam_${ts()}.webm`,
-    }).click();
-    state.recording = false;
-    updateRecordBtns();
-  };
-
-  state.mediaRecorder.start(100); // collect chunks every 100ms
-  state.recording = true;
-  updateRecordBtns();
-}
-
-function stopRecording() {
-  if (state.mediaRecorder && state.recording) {
-    state.mediaRecorder.stop();
-  }
-}
-
-// Draw current ASCII frame onto the recording canvas each render cycle
-function paintRecordFrame() {
-  if (!state.recording) return;
-  const lines = asciiOutput.textContent.split('\n');
-  if (!lines.length) return;
-
-  const fs = 7.5, lh = fs * 1.15, cw = fs * 0.601;
-  const cols = lines[0]?.length || state.cols;
-  const rows = lines.length;
-
-  // Resize if needed
-  if (recCanvas.width !== Math.round(cols * cw) || recCanvas.height !== Math.round(rows * lh)) {
-    recCanvas.width  = Math.round(cols * cw);
-    recCanvas.height = Math.round(rows * lh);
-  }
-
-  recCtx.fillStyle = '#000';
-  recCtx.fillRect(0, 0, recCanvas.width, recCanvas.height);
-  recCtx.font = `${fs}px 'Share Tech Mono', monospace`;
-  recCtx.fillStyle = state.asciiColor;
-  recCtx.textBaseline = 'top';
-  lines.forEach((line, i) => recCtx.fillText(line, 0, i * lh));
-}
-
-function updateRecordBtns() {
-  const isRec = state.recording;
-  btnRecord.textContent    = isRec ? '⏹ Stop Rec' : '⏺ Record Video';
-  fsBtnRecord.textContent  = isRec ? '⏹ Stop'     : '⏺ Record';
-  btnRecord.classList.toggle('recording', isRec);
-  fsBtnRecord.classList.toggle('recording', isRec);
-}
-
-
-// ─────────────────────────────────────────
-// 12. Event listeners
+// 11. Event listeners
 // ─────────────────────────────────────────
 btnStart.addEventListener('click', startCamera);
 btnStop.addEventListener('click', stopCamera);
 startOverlay.addEventListener('click', startCamera);
-btnRecord.addEventListener('click', () => state.recording ? stopRecording() : startRecording());
-fsBtnRecord.addEventListener('click', () => state.recording ? stopRecording() : startRecording());
-fsBtnPng.addEventListener('click', exportPng);
-fsBtnTxt.addEventListener('click', exportTxt);
-fsBtnExit.addEventListener('click', exitFullscreen);
 
 [btnClassic, btnColor].forEach(btn => btn.addEventListener('click', () => {
   state.mode = btn.dataset.mode;
@@ -644,36 +540,14 @@ document.addEventListener('mozfullscreenchange',    updateFullscreenBtn);
 function updateFullscreenBtn() {
   if (isFullscreen()) {
     btnFullscreen.textContent = '⛶ Exit Fullscreen';
+    // Boost detail columns for the larger display
     state._prevCols = state.cols;
-    const charWidth = 7.5 * 0.601;
-    state.cols = Math.max(160, Math.floor(window.screen.width / charWidth));
-    fsHud.classList.remove('hidden');
-    showHudTemporarily();
+    state.cols = Math.max(state.cols, 160);
   } else {
     btnFullscreen.textContent = '⛶ Fullscreen';
     if (state._prevCols) { state.cols = state._prevCols; state._prevCols = null; }
-    fsHud.classList.add('hidden');
-    fsHud.classList.remove('visible');
   }
 }
-
-// Auto-hide HUD after 3s of no mouse movement in fullscreen
-let hudHideTimer = null;
-function showHudTemporarily() {
-  fsHud.classList.add('visible');
-  clearTimeout(hudHideTimer);
-  hudHideTimer = setTimeout(() => {
-    if (!fsHud.matches(':hover')) fsHud.classList.remove('visible');
-  }, 3000);
-}
-
-screenInner.addEventListener('mousemove', () => {
-  if (isFullscreen()) showHudTemporarily();
-});
-fsHud.addEventListener('mouseenter', () => clearTimeout(hudHideTimer));
-fsHud.addEventListener('mouseleave', () => {
-  hudHideTimer = setTimeout(() => fsHud.classList.remove('visible'), 1500);
-});
 
 // F key shortcut
 document.addEventListener('keydown', e => {
